@@ -5,6 +5,7 @@ const nameImage = require('../middleware/multer-config');
 
 const sauceCtrl = require('../controllers/sauce');
 
+// Routes that will be used for all the interactions with the sauce, some uses multer and all require an auth
 router.post('/', auth, nameImage, sauceCtrl.createSauce);
 router.get('/', auth, sauceCtrl.getAllSauces);
 router.get('/:id', auth, sauceCtrl.getOneSauce);
