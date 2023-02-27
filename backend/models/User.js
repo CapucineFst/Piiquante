@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
+//Give the condition for the two fields
 const userSchema = mongoose.Schema({
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, unique: true},
     password: { type: String, required: true }
 });
 

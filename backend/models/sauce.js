@@ -1,15 +1,18 @@
-const express = require('express');
-const router = express.Router();
-const auth = require('../middleware/auth');
-const nameImage = require('../middleware/multer-config');
+const mongoose = require('mongoose');
 
-const sauceCtrl = require('../controllers/sauce');
+//Give the conditions for the sauce object
+const sauceSchema = mongoose.Schema({
+  userId: { type: String, required: true},
+  name: { type: String, required: true },
+  manufacturer: { type: String, required: true },
+  description: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  mainPepper: { type: String, required: true },
+  heat: { type: Number, required: true },
+  likes: { type: Number, default: 0}, 
+  dislikes: { type: Number, default: 0},
+  usersLiked: { type: [String], default: []},
+  usersDisliked: { type: [String], default: []}
+});
 
-router.post('/', auth, nameImage, sauceCtrl.createSauce);
-router.get('/', auth, sauceCtrl.getAllSauces);
-router.get('/:id', auth, sauceCtrl.getOneSauce);
-router.put('/:id', auth, nameImage, sauceCtrl.modifySauce);
-router.delete('/:id', auth, sauceCtrl.deleteSauce);
-router.post('/:id/like', auth, sauceCtrl.likeSauce);
-
-module.exports = router;
+module.exports = mongoose.model('Sauce', sauceSchema);
