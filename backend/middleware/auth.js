@@ -1,5 +1,12 @@
 const jwt = require('jsonwebtoken');
 
+/**
+ * Get the token from the header
+ * Decode it and create the userId
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 module.exports = (req, res, next) => {
     try{
         const token = req.headers.authorization.split(' ')[1];
