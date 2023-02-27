@@ -1,14 +1,22 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/User'); //Import user model
 
 
-// User signup
+/** Signup function 
+ * Get the password and use the hash from bcrypt to protect it
+ * Create a new user with the email and use toLowerCase() to make sure the field is case insensitive
+ * Hash the password in the database
+ * Save the user
+ * Sends an error code if there is a necessity
+ * @param {*} req 
+ * @param {*} res 
+ */
 exports.signup = (req, res) => {
     bcrypt.hash(req.body.password, 10)
         .then(hash => {
             const user = new User({
-                email: req.body.email,
+                email: req.body.email.toLowerCase(),
                 password: hash
             });
             user.save()
@@ -18,10 +26,17 @@ exports.signup = (req, res) => {
         .catch(error => res.status(500).json({ error }));
 };
 
-//User login
+/** Login function
+ * Get the email and use toLowerCase() to make sure the field is case insensitive
+ * Verify is the user exists or not, if it doesn't send an error otherwise resume
+ * Check if the passwords are the same, if it isn't send an error otherwise resume
+ * If correct, creates an userId and a token which expires in 24h
+ * @param {*} req 
+ * @param {*} res 
+*/
 exports.login = (req, res) => {
-    User.findOne({email: req.body.email})
-        .then(user => {
+    User.findOne({email: req.body.email.toLowerCase()})
+        .then(user => { 
             if (user === null) {
                 res.status(401).json({ message: 'Identifiant ou mot de passe incorrect.' })
                 return;
