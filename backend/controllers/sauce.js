@@ -25,7 +25,7 @@ exports.createSauce = (req, res) => {
     const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
     const sauce = new Sauce({
-        userId: sauceObject.userId,
+        userId: req.auth.userId,
         name: sauceObject.name,
         manufacturer: sauceObject.manufacturer,
         description: sauceObject.description,
@@ -54,17 +54,16 @@ exports.getOneSauce = (req, res) => {
 };
 
 /**
- * IF REQFILE NOT WORKING
- * CAPTION NEEDS UPDATE
- * Get the info of the sauce
+ * Check if we modify the picture or not
+ * If we do, update the URL of the image
  * Uses sauceObject to modify the info
- * Save it or send an error messsage
+ * Save it or send an error message
  * @param {http.ClientRequest} req 
  * @param {http.ServerResponse} res 
  */
 exports.modifySauce = (req, res) => {
-    const sauceObject = JSON.parse(JSON.stringify(req.body));
-    Sauce.findOne({_id: req.params.id})
+    const sauceObject = req.headers['content-type'] === 'application/json' ?  req.body : JSON.parse(req.body.sauce);
+    Sauce.findOne({_id: req.params.id}, {auth : req.auth.userId})
     .then((sauce) => {
         if (!sauce) {
             throw new Error("not found");
@@ -92,15 +91,15 @@ exports.modifySauce = (req, res) => {
  * @param {http.ServerResponse} res 
  */
 exports.deleteSauce = (req, res) => {
-    Sauce.findOne({_id: req.params.id})
+    Sauce.findOne({_id: req.params.id},{auth : req.auth.userId} )
         .then(sauce => {
             const filename = sauce.imageUrl.split('/images/')[1]; 
             fsPromises.unlink(`images/${filename}`)
-            .then (
+            .then (() =>
                 Sauce.deleteOne({_id: req.params.id}) 
                 .then(()=> res.status(200).json({ message: 'Sauce supprimée'}))
             )
-        .catch(error => res.status(400).json({ error}))
+        .catch(error => res.status(400).json(error))
     });
 };
 
@@ -124,7 +123,7 @@ exports.likeSauce = (req, res) => {
                 }
                 Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: 1 }, $push: { usersLiked: req.auth.userId } })
                     .then(() => res.status(200).json({ message: 'Like ajouté !' }))
-                    .catch(error => res.status(400).json({ error }))
+                    .catch(error => res.status(400).json(error))
             } 
             else if (req.body.like === -1) {
                 if (sauce.usersDisliked.includes(req.auth.userId)) {
@@ -133,18 +132,18 @@ exports.likeSauce = (req, res) => {
                 }
                 Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDisliked: req.auth.userId } })
                     .then(() => res.status(200).json({ message: 'Dislike ajouté !' }))
-                    .catch(error => res.status(400).json({ error }));
+                    .catch(error => res.status(400).json(error));
             } else {
                 if (sauce.usersLiked.includes(req.auth.userId)) {
                     Sauce.updateOne({ _id: req.params.id }, { $pull: { usersLiked: req.auth.userId }, $inc: { likes: -1 } })
                         .then(() => { res.status(200).json({ message: 'Like supprimé !' }) })
-                        .catch(error => res.status(400).json({ error }));
+                        .catch(error => res.status(400).json(error));
                 } else if (sauce.usersDisliked.includes(req.auth.userId)) {
                     Sauce.updateOne({ _id: req.params.id }, { $pull: { usersDisliked: req.auth.userId }, $inc: { dislikes: -1 } })
                             .then(() => { res.status(200).json({ message: 'Dislike supprimé !' }) })
-                            .catch(error => res.status(400).json({ error }));
+                            .catch(error => res.status(400).json(error));
                 }
             }
         })
-        .catch(error => res.status(400).json({ error }));   
+        .catch(error => res.status(400).json(error));   
 };
