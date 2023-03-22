@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User'); //Import user model
+const errorMessage = require('../errors/error'); // Import error function
 
 
 /** Signup function 
@@ -21,9 +22,9 @@ exports.signup = (req, res) => {
             });
             user.save()
                 .then(() => res.status(201).json({ message: 'Utilisateur crée !' }))
-                .catch(error => res.status(400).json({ error }));
+                .catch(error => res.status(400).json(errorMessage(error)));
         })
-        .catch(error => res.status(500).json({ error }));
+        .catch(error => res.status(500).json(errorMessage(error)));
 };
 
 
@@ -54,7 +55,7 @@ exports.login = (req, res) => {
                     });
                         
                 })
-                .catch(error => res.status(500).json({ error }));
+                .catch(error => res.status(500).json(errorMessage(error)));
         })
-        .catch(error => res.status(500).json({ error }));
+        .catch(error => res.status(500).json(errorMessage(error)));
 };

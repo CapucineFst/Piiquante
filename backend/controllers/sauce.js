@@ -1,14 +1,6 @@
 const Sauce = require('../models/sauce'); // Import Sauce model
 const fsPromises = require('fs.promises'); // Package allowing to modify/delete files
-
-const getErrorMessage = (error) => {
-    console.log(error)
-    if (error.errors !== undefined ) {
-        const messages = error.errors.map(e => e.message);
-        return { message : messages.join(',')};
-    }
-    return {message : 'erreur inconnue'};
-};
+const errorMessage = require('../errors/error'); // Import error function
 /**
  * Get all the sauces available on the website
  * @param {http.ClientRequest} req 
@@ -17,8 +9,9 @@ const getErrorMessage = (error) => {
 exports.getAllSauces = (req, res) => {
     Sauce.find()
         .then(response => res.status(200).json(response))
-        .catch(error => res.status(404).json(getErrorMessage(error)))
+        .catch(error => res.status(404).json(errorMessage(error)))
 };
+
 
 /**
  * Get the information from the body
@@ -46,7 +39,7 @@ exports.createSauce = (req, res) => {
     });
     sauce.save()
         .then(() => res.status(201).json({ message: 'Sauce enregistrée avec succès !'}))
-        .catch(error => res.status(400).json(getErrorMessage(error)));
+        .catch(error => res.status(400).json(errorMessage(error)));
 }
 
 /**
@@ -57,7 +50,7 @@ exports.createSauce = (req, res) => {
 exports.getOneSauce = (req, res) => {
     Sauce.findOne({_id: req.params.id})
         .then((sauce) => res.status(200).json(sauce))
-        .catch(error => res.status(404).json(getErrorMessage(error)))
+        .catch(error => res.status(404).json(errorMessage(error)))
 };
 
 /**
@@ -86,7 +79,7 @@ exports.modifySauce = (req, res) => {
         return sauce.save()
     })
     .then(() => res.status(200).json({ message: 'Sauce modifiée avec succès !'}))
-    .catch(error => res.status(400).json(getErrorMessage(error)))
+    .catch(error => res.status(400).json(errorMessage(error)))
 };
 
 /**
@@ -106,7 +99,7 @@ exports.deleteSauce = (req, res) => {
                 Sauce.deleteOne({_id: req.params.id}) 
                 .then(()=> res.status(200).json({ message: 'Sauce supprimée'}))
             )
-        .catch(error => res.status(400).json(getErrorMessage(error)))
+        .catch(error => res.status(400).json(errorMessage(error)))
     });
 };
 
@@ -130,7 +123,7 @@ exports.likeSauce = (req, res) => {
                 }
                 Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: 1 }, $push: { usersLiked: req.auth.userId }})
                     .then(() => res.status(200).json({ message: 'Like ajouté !' }))
-                    .catch(error => res.status(400).json(error))
+                    .catch(error => res.status(400).json(errorMessage(error)))
             } 
             else if (req.body.like === -1) {
                 if (sauce.usersDisliked.includes(req.auth.userId)) {
@@ -139,18 +132,18 @@ exports.likeSauce = (req, res) => {
                 }
                 Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: 1 }, $push: { usersDisliked: req.auth.userId }})
                     .then(() => res.status(200).json({ message: 'Dislike ajouté !' }))
-                    .catch(error => res.status(400).json(error));
+                    .catch(error => res.status(400).json(errorMessage(error)));
             } else {
                 if (sauce.usersLiked.includes(req.auth.userId)) {
                     Sauce.updateOne({ _id: req.params.id }, { $inc: { likes: -1 }, $pull: { usersLiked: req.auth.userId }})
                         .then(() => { res.status(200).json({ message: 'Like supprimé !' }) })
-                        .catch(error => res.status(400).json(error));
+                        .catch(error => res.status(400).json(errorMessage(error)));
                 } else if (sauce.usersDisliked.includes(req.auth.userId)) {
                     Sauce.updateOne({ _id: req.params.id }, { $inc: { dislikes: -1 }, $pull: { usersDisliked: req.auth.userId }})
                             .then(() => { res.status(200).json({ message: 'Dislike supprimé !' }) })
-                            .catch(error => res.status(400).json(error));
+                            .catch(error => res.status(400).json(errorMessage(error)));
                 }
             }
         })
-        .catch(error => res.status(400).json(getErrorMessage(error)));   
+        .catch(error => res.status(400).json(errorMessage(error)));   
 };
