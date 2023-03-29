@@ -1,11 +1,12 @@
 const jwt = require('jsonwebtoken');
+const errorMessage = require('../errors/error'); // Import error function
 
 /**
  * Get the token from the header
  * Decode it and create the userId
- * @param {*} req 
- * @param {*} res 
- * @param {*} next 
+ * @param {http.ClientRequest} req 
+ * @param {http.ServerResponse} res 
+ * @param {function} next
  */
 module.exports = (req, res, next) => {
     try{
@@ -15,6 +16,6 @@ module.exports = (req, res, next) => {
         req.auth = {userId};   
         next();
     } catch(error){
-        res.status(401).json({error});
+        res.status(401).json(errorMessage(error));
     }
 };
