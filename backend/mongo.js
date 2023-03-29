@@ -4,9 +4,11 @@ const mongoose = require('mongoose');
 const USER = process.env.DB_USER;
 const PASSWORD = process.env.DB_PASSWORD;
 const DATABASE = process.env.DB_NAME;
-const uri = `mongodb+srv://${USER}:${PASSWORD}@${DATABASE}.lvrkxbu.mongodb.net/?retryWrites=true&w=majority`;
+const CODE = process.env.DB_CODE;
+const uri = `mongodb+srv://${USER}:${PASSWORD}@${DATABASE}.${CODE}.mongodb.net/?retryWrites=true&w=majority`;
 
-/** Connexion to mongoose DB
+/** 
+ * Connexion to mongoose DB
  * Send a message giving the status of the connexion
 */
 mongoose.connect(uri)
