@@ -1,6 +1,7 @@
 const Sauce = require('../models/sauce'); // Import Sauce model
-const fsPromises = require('fs.promises'); // Package allowing to modify/delete files
+const fsPromises = require('fs/promises'); // Package allowing to modify/delete files
 const errorMessage = require('../errors/error'); // Import error function
+
 /**
  * Get all the sauces available on the website
  * @param {http.ClientRequest} req 
