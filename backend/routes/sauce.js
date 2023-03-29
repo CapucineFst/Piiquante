@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 const nameImage = require('../middleware/multer-config');
-
 const sauceCtrl = require('../controllers/sauce');
 
 // Routes that will be used for all the interactions with the sauce, some uses multer and all require an auth
